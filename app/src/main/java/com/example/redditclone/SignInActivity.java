@@ -11,7 +11,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
-
+import android.widget.TextView;
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -29,6 +29,7 @@ public class SignInActivity extends AppCompatActivity {
     private LinearLayout layoutSignUp;
     private EditText edtEmail, edtPassword;
     private Button btnSignIn;
+    private TextView tvForgotPassword; // Add this
     private ProgressDialog progressDialog;
 
     @Override
@@ -42,7 +43,6 @@ public class SignInActivity extends AppCompatActivity {
             return insets;
         });
 
-
         initUI();
         initListener();
     }
@@ -54,9 +54,8 @@ public class SignInActivity extends AppCompatActivity {
         edtEmail = findViewById(R.id.edt_email);
         edtPassword = findViewById(R.id.edt_password);
         btnSignIn = findViewById(R.id.btn_sign_in);
-
+        tvForgotPassword = findViewById(R.id.tv_forgot_password); // Initialize forgot password
     }
-
 
     private void initListener() {
         layoutSignUp.setOnClickListener(new View.OnClickListener() {
@@ -73,8 +72,18 @@ public class SignInActivity extends AppCompatActivity {
                 onClickSignIn();
             }
         });
+
+        // Add forgot password click listener
+        tvForgotPassword.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Add your forgot password logic here
+                Toast.makeText(SignInActivity.this, "Not gonna happened LOL", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
+    // Rest of your existing methods remain the same...
     private void onClickSignIn() {
         String strEmail = edtEmail.getText().toString().trim();
         String strPassword = edtPassword.getText().toString().trim();

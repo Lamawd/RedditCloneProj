@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -22,9 +23,11 @@ import com.google.firebase.auth.FirebaseAuth;
 
 public class SignUpActivity extends AppCompatActivity {
 
-    private EditText edtEmail, edtpassword;
+    private EditText edtEmail, edtPassword;
     private Button btnSignUp;
+    private LinearLayout layoutBackLogin;
     private ProgressDialog progressDialog;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,19 +39,19 @@ public class SignUpActivity extends AppCompatActivity {
             return insets;
         });
 
-
         initUi();
         initListener();
     }
 
     private void initUi() {
         edtEmail = findViewById(R.id.edt_email);
-        edtpassword = findViewById(R.id.edt_password);
+        edtPassword = findViewById(R.id.edt_password);
         btnSignUp = findViewById(R.id.btn_sign_up);
-
+        layoutBackLogin = findViewById(R.id.layout_back_login);
 
         progressDialog = new ProgressDialog(this);
     }
+
     private void initListener() {
         btnSignUp.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -56,31 +59,51 @@ public class SignUpActivity extends AppCompatActivity {
                 onClickSignUp();
             }
         });
+
+        // Back to login
+        layoutBackLogin.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(SignUpActivity.this, SignInActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        });
     }
 
     private void onClickSignUp() {
-                String strEmail = edtEmail.getText().toString().trim();
-                String strPassword = edtpassword.getText().toString().trim();
-                FirebaseAuth auth = FirebaseAuth.getInstance();
-                progressDialog.show();
-                auth.createUserWithEmailAndPassword(strEmail, strPassword)
-                        .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                            @Override
+        String strEmail = edtEmail.getText().toString().trim();
+        String strPassword = edtPassword.getText().toString().trim();
+
+        // Basic validation
+        if (strEmail.isEmpty() || strPassword.isEmpty()) {
+            Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (strPassword.length() < 6) {
+            Toast.makeText(this, "Password must be at least 6 characters", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        progressDialog.setMessage("Creating account...");
+        progressDialog.show();
+
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        auth.createUserWithEmailAndPassword(strEmail, strPassword)
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
-                                progressDialog.dismiss();
+                        progressDialog.dismiss();
                         if (task.isSuccessful()) {
-                        // Sign in success, update UI with the signed-in user's information
-                       Intent intent = new Intent(SignUpActivity.this, MainActivity.class);
-                       startActivity(intent);
-                       finishAffinity();
-                    } else {
-                        // If sign in fails, display a message to the user.
-                        Toast.makeText(SignUpActivity.this, "Authentication failed.",
-                                Toast.LENGTH_SHORT).show();
+                            Intent intent = new Intent(SignUpActivity.this, MainActivity.class);
+                            startActivity(intent);
+                            finishAffinity();
+                        } else {
+                            Toast.makeText(SignUpActivity.this, "Authentication failed: " + task.getException().getMessage(),
+                                    Toast.LENGTH_SHORT).show();
+                        }
                     }
-                }
-            });
-}   }
-
-
-
+                });
+    }
+}
